@@ -6,13 +6,16 @@
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <HTTPClient.h>
+#include <format>
 
 WiFiMulti WiFiMulti;
 
-const char *ssid = "Peine-3";
-const char *password = "etecPeine3";
-
-const char* serverName = "http:/19.56.13.3:36000/api/sensor";
+//const char *ssid = "Peine-3";
+//const char *password = "etecPeine3";
+//const char* serverName = "http://19.56.13.3:36000/api/sensor";
+const char *ssid = "ETEC-UBA";
+const char *password = "ETEC-alumnos@UBA";
+const char* serverName = "http://10.9.120.87:7000/api/sensor";
 
 void setup() {
   Serial.begin(115200);
@@ -48,9 +51,16 @@ void loop()
  http.begin(client, serverName);
  http.addHeader("Content-Type", "application/json");
  Serial.println("Enviando dato");
- int httpResponseCode = http.POST("{\"nombre\":\"luxometro\":\"valor\":145}");
+ int valor =145;
+ String jsonStr = std::format("{\nombre\":\"luxometro\",\"valor\":"+ string(valor)+"}")
+ //char *jsonStr = "{\"nombre\":\"luxometro\",\"valor\":145}";
+ int httpResponseCode = http.POST(jsonStr);
  Serial.print("Respuesta: ");
  Serial.println(httpResponseCode);
  http.end();
+ }
+ else
+ {
+   Serial.println("Desconectado");
  }
 }
