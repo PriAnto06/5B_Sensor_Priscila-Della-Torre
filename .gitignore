@@ -14,3 +14,5 @@ build/
 
 *.egg-info/
 python -m venv .venv
+
+datos3.sqlite
