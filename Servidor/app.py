@@ -47,3 +47,14 @@ def sensor():
              "valor": valor }
     cerrarConexion()
     return datos
+
+@app.route("/api/sensor/datos",methods=["GET"])
+def obtener_datos():
+   db = abrirConexion()
+   cursor = db.execute("SELECT * FROM ESP32")
+   datos = cursor.fetchall()
+   cerrarConexion()
+   return {
+      "resultado": "Ok",
+      "datos": datos
+   }
