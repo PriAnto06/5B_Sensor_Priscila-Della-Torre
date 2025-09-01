@@ -1,6 +1,8 @@
 from flask import Flask,g, jsonify, request, url_for
 from math import ceil
 import sqlite3
+
+resultados_por_pag = 3
 def dict_factory(cursor, row):
   """Arma un diccionario con los valores de la fila."""
   fields = [column[0] for column in cursor.description]
@@ -50,11 +52,47 @@ def sensor():
 
 @app.route("/api/sensor/datos",methods=["GET"])
 def obtener_datos():
+   args = request.args
+   pagina = int(args.get('page', '1'))
+   descartar = (pagina-1)* resultados_por_pag
    db = abrirConexion()
-   cursor = db.execute("SELECT * FROM ESP32")
-   datos = cursor.fetchall()
-   cerrarConexion()
-   return {
-      "resultado": "Ok",
-      "datos": datos
-   }
+   cursor =db.cursor()
+   cursor.execute("SELECT COUNT(*) AS cant FROM ESP32;")
+   cant = cursor.fetchone()['cant']
+   paginas= ceil(cant / resultados_por_pag)
+
+   if pagina < 1 or pagina > paginas:
+       return f"Página inexistente: {pagina}", 400
+   
+   cursor.execute("""SELECT Nombre, Valor
+                      FROM ESP32
+                      LIMIT ? OFFSET ?;""",
+                   (resultados_por_pag, descartar))
+   lista = cursor.fetchall()
+   cerrarConexion(db)
+   siguiente = None
+   anterior = None
+   if pagina > 1:
+       anterior = url_for('obtener_datos', page=pagina-1, _external=True)
+   if pagina < paginas:
+       siguiente = url_for('obtener_datos', page=pagina+1, _external=True)
+   info = { 'count' : cant, 'pages': paginas,
+             'next' : siguiente, 'prev' : anterior }
+   res = { 'info' : info, 'results' : lista}
+   return jsonify(res)
+
+
+
+
+
+
+
+#def obtener_datos():
+   #db = abrirConexion()
+   #cursor = db.execute("SELECT * FROM ESP32")
+   #datos = cursor.fetchall()
+   #cerrarConexion()
+   #return {
+     # "resultado": "Ok",
+     # "datos": datos
+   #}
