@@ -6,27 +6,28 @@
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <HTTPClient.h>
-#include <format>
-
+#include <string>
+const  int pin = 35;
 WiFiMulti WiFiMulti;
 
 //const char *ssid = "Peine-3";
 //const char *password = "etecPeine3";
 //const char* serverName = "http://19.56.13.3:36000/api/sensor";
-const char *ssid = "ETEC-UBA";
-const char *password = "ETEC-alumnos@UBA";
-const char* serverName = "http://10.9.120.87:7000/api/sensor";
+const char *ssid = "Peine-3";
+const char *password = "etecPeine3";
+const char* serverName = "http://10.9.120.87:5000/api/sensor";
 
 void setup() {
   Serial.begin(115200);
   delay(10);
-
+ pinMode(pin,INPUT);
   // We start by connecting to a WiFi network
   WiFiMulti.addAP(ssid, password);
 
   Serial.println();
   Serial.println();
   Serial.print("Waiting for WiFi... ");
+  
 
   while (WiFiMulti.run() != WL_CONNECTED) {
     Serial.print(".");
@@ -52,11 +53,12 @@ void loop()
  http.addHeader("Content-Type", "application/json");
  Serial.println("Enviando dato");
  int valor =145;
- String jsonStr = std::format("{\nombre\":\"luxometro\",\"valor\":"+ string(valor)+"}")
+std::string jsonStr = std::string("{\nombre\":\"termometro\",\"valor\":"+ std:: to_string(valor)+"}");
  //char *jsonStr = "{\"nombre\":\"luxometro\",\"valor\":145}";
- int httpResponseCode = http.POST(jsonStr);
+ int httpResponseCode = http.POST(jsonStr.c_str());
  Serial.print("Respuesta: ");
  Serial.println(httpResponseCode);
+ Serial.println(valor);
  http.end();
  }
  else
@@ -64,3 +66,7 @@ void loop()
    Serial.println("Desconectado");
  }
 }
+
+/*No se puede conectar, por que no hay internet*/
+/*lo que hice fue conectar el sensor a la red pero no hay wifi*/
+/*la direccion ip es de un servidor que se conecto el profe*/
